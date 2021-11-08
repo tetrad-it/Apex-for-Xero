@@ -19,7 +19,7 @@ http://developer.xero.com/documentation/api/api-overview/
 ## Quick Setup
 
 1. Create an Auth. Provider within your Salesforce Org:
-    1. Setup -> Security Controls -> Auth. Providers -> New
+    1. Setup -> Identity -> Auth. Providers -> New
     2. Provider Type = "Open ID Connect"
     3. Name = "Xero"
     4. Consumer Key = "ABC" (this is temporary, we will update this with the Xero Consumer Key once we have it)
