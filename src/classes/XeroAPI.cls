@@ -267,6 +267,72 @@ public with sharing class XeroAPI {
             }
         }
     }
+    
+    /**
+	*   @author Emandleni Moyo (emandleni.moyo@tetrad.co.za)
+	*   @description Retrieve particular quote from Xero
+	**/
+    public static XeroQuote getQuote(String xeroId){
+        String resourceName = 'Quotes';
+        
+        // Callout to Xero to retrieve quote 
+        HttpResponse response = XeroCalloutService.executeCallout('GET', resourceName + '/' + xeroId); 
+        
+        if (response.getStatusCode() < 300) {     
+            String jsonSerialized = XeroUtils.generateJsonStringForParsing(response.getBody(), resourceName);
+            List<XeroQuote> xeroQuotes = (List<XeroQuote>) JSON.deserialize(jsonSerialized, List<XeroQuote>.class);
+            return xeroQuotes[0];
+        }
+        else {
+            // Throw exception
+            throw new XeroApiException(
+                'Error retrieving invoice: ' + response.getStatusCode() + ' - ' + response.getStatus() + '\n\n' + 
+                response.getBody()
+            );
+        }
+    
+    }
+    
+    /**
+    *   @author Emandleni Moyo (emandleni.moyo@tetrad.co.za)
+    *   @description Retrieve modified quotes from Xero
+    **/
+    public static List<XeroQuote> getQuotes(Integer daysAgo){
+        String resourceName = 'Quotes';
+        
+        Map<String, String> modifiedHeader = null;
+        
+        if (daysAgo != null) {
+            
+            // Build the modified header
+            modifiedHeader = new Map<String, String>{
+                'If-Modified-Since' => getModifiedDateFilterFormatted(daysAgo)
+                    };
+                        }
+        
+        // Callout to Xero to retrieve invoices to update
+        HttpResponse response = XeroCalloutService.executeCallout('GET', resourceName, null, modifiedHeader); 
+        
+        if (response.getStatusCode() < 300) {
+            
+            String jsonSerialized = XeroUtils.generateJsonStringForParsing(response.getBody(), resourceName);
+            
+            // Now serialise the response and return
+            return (List<XeroQuote>) JSON.deserialize(jsonSerialized, List<XeroQuote>.class); 
+        }
+        else {
+            
+            // Throw exception
+            throw new XeroApiException(
+                'Error retrieving invoices: ' + response.getStatusCode() + ' - ' + response.getStatus() + '\n\n' + 
+                response.getBody()
+            );
+        }
+    }
+    
+    public static void sendQuote(XeroQuote quote){
+        //logic
+    }
 
     /**
     *   @author Ben Edwards (ben@edwards.nz)
